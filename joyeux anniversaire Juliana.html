@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>HAPPY BIRTHDAY Juliana</title>
+	<style>
+body{
+    background-color:black;
+}
+h1{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', 'cursive', Arial, sans-serif;
+    text-align: center;
+    font-size: 75px;
+    padding-top: 9%;
+    color: rgb(0, 174, 255);
+    padding-bottom: 10px;
+    word-spacing: 5px;
+    text-shadow: 4px 3px white;
+}
+h2.strong{
+    font-size: 70px;
+    text-shadow: none;
+}
+.alert{
+    text-align: center;
+    color: white;
+    word-spacing: 5px;
+    padding-bottom: 5px;
+}
+.texte{
+    color: white;
+    word-spacing: 5px;
+    padding-bottom: 5px;
+}
+h2{
+    font-family: cursive;
+    height: 100px;
+    text-align: center;
+    font-size: 70px;
+    color: rgb(0, 174, 255);
+    word-spacing: 5px;
+    text-shadow: 4px 3px black;
+    padding-bottom: 5px;
+}
+.next{
+    text-align: center;
+    margin-top: 2%;
+    height: 35px;
+}
+.boutton{
+    height: 35px;
+    width: 190px;
+    background-color: rgb(0, 174, 255);
+    text-decoration: none;
+    border-radius: 5px;
+}
+a{
+    color: white;
+    text-decoration: none;
+}
+h3{
+    color: aliceblue;
+    float: right;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+
+.pagination {
+    display: inline-block;
+    color: white;
+}
+
+	</style> 
+</head>
+<body>
+
+<h1>JOYEUX ANNIVERSAIRE Juliana !</h1>
+
+
+
+<h2>HAPPY BIRTHDAY Tchaou Juliana<strong>.🎉🎉️🎉️</strong></h2>
+<p class="alert"><strong>Tres belle journée à toi, je te propose de faire un méchant okok en ce jour qu'est le tient !</strong></p>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<p><strong class="texte">
+	Bonheur, amour, richesse, prospérité, longévité et tout le reste... 
+</strong></p>
+
+	<h3>DE LA PART DE : STAEL_PRO😎!</h3>
+</div>
+
+<canvas id="Canvas"></canvas>
+
+<script> 
+window.addEventListener('click', () => {
+  document.getElementById("song").play();
+});
+
+
+
+var c = document.getElementById("Canvas");
+var ctx = c.getContext("2d");
+
+var cwidth, cheight;
+var shells = [];
+var pass= [];
+
+var colors = ['#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40','white','tan','tomato','green','yellowgreen'];
+window.onresize = function() { reset(); }
+reset();
+function reset() {
+
+  cwidth = window.innerWidth;
+	cheight = window.innerHeight;
+	c.width = cwidth;
+	c.height = cheight;
+}
+
+function newShell() {
+
+  var left = (Math.random() > 0.5);
+  var shell = {};
+  shell.x = (1*left);
+  shell.y = 1;
+  shell.xoff = (0.01 + Math.random() * 0.007) * (left ? 1 : -1);
+  shell.yoff = 0.01 + Math.random() * 0.007;
+  shell.size = Math.random() * 6 + 3;
+  shell.color = colors[Math.floor(Math.random() * colors.length)];
+
+  shells.push(shell);
+}
+
+function newPass(shell) {
+
+  var pasCount = Math.ceil(Math.pow(shell.size, 2) * Math.PI);
+
+  for (i = 0; i < pasCount; i++) {
+
+    var pas = {};
+    pas.x = shell.x * cwidth;
+    pas.y = shell.y * cheight;
+
+    var a = Math.random() * 4;
+    var s = Math.random() * 10;
+
+		pas.xoff = s *  Math.sin((5 - a) * (Math.PI / 2));
+  	pas.yoff = s *  Math.sin(a * (Math.PI / 2));
+
+    pas.color = shell.color;
+    pas.size = Math.sqrt(shell.size);
+
+    if (pass.length < 1000) { pass.push(pas); }
+  }
+}
+
+var lastRun = 0;
+Run();
+function Run() {
+
+  var dt = 1;
+  if (lastRun != 0) { dt = Math.min(50, (performance.now() - lastRun)); }
+	lastRun = performance.now();
+
+  //ctx.clearRect(0, 0, cwidth, cheight);
+	ctx.fillStyle = "rgba(0,0,0,0.25)";
+	ctx.fillRect(0, 0, cwidth, cheight);
+
+  if ((shells.length < 10) && (Math.random() > 0.96)) { newShell(); }
+
+  for (let ix in shells) {
+
+    var shell = shells[ix];
+
+    ctx.beginPath();
+    ctx.arc(shell.x * cwidth, shell.y * cheight, shell.size, 0, 2 * Math.PI);
+    ctx.fillStyle = shell.color;
+    ctx.fill();
+
+    shell.x -= shell.xoff;
+    shell.y -= shell.yoff;
+    shell.xoff -= (shell.xoff * dt * 0.001);
+    shell.yoff -= ((shell.yoff + 0.2) * dt * 0.00005);
+
+    if (shell.yoff < -0.005) {
+      newPass(shell);
+      shells.splice(ix, 1);
+    }
+  }
+
+  for (let ix in pass) {
+
+    var pas = pass[ix];
+
+    ctx.beginPath();
+    ctx.arc(pas.x, pas.y, pas.size, 0, 2 * Math.PI);
+    ctx.fillStyle = pas.color;
+    ctx.fill();
+
+    pas.x -= pas.xoff;
+    pas.y -= pas.yoff;
+    pas.xoff -= (pas.xoff * dt * 0.001);
+    pas.yoff -= ((pas.yoff + 5) * dt * 0.0005);
+    pas.size -= (dt * 0.002 * Math.random())
+
+    if ((pas.y > cheight)  || (pas.y < -50) || (pas.size <= 0)) {
+        pass.splice(ix, 1);
+    }
+  }
+  requestAnimationFrame(Run);
+}
+</script>
+
+</body>
+</html>
