@@ -16,7 +16,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'test -f index.html'
+                sh 'test -f Annive_Juliana.html'
             }
         }
 
