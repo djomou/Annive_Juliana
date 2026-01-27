@@ -22,8 +22,8 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'sudo rm -rf /var/www/html/*'
-                sh 'sudo cp -r * /var/www/html/'
+                sh 'rm -rf /var/www/html/*' 
+                sh 'cp -r * /var/www/html/'
             }
         }
     }
