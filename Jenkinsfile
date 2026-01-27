@@ -16,7 +16,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'test -f Annive_Juliana.html'
+                sh 'test -f joyeux anniversaire Juliana.html'
             }
         }
 
