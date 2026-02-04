@@ -52,6 +52,23 @@ pipeline {
             }
         }
 
+        stage('Image Scan') {
+            steps {
+                // Scan d'image Docker avec Trivy (ne bloque pas si absent)
+                sh '''
+                if command -v trivy >/dev/null 2>&1; then
+                  if docker images | grep -q "annive_juliana"; then
+                    trivy image annive_juliana || true
+                  else
+                    echo "Image Docker 'annive_juliana' introuvable, étape ignorée."
+                  fi
+                else
+                  echo "Trivy non installé, étape ignorée."
+                fi
+                '''
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh 'rm -rf /var/www/html/*'
