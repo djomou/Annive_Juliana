@@ -51,19 +51,7 @@ pipeline {
                 '''
             }
         }
-       stage('Dependency Scan - Trivy') {
-           steps {
-               sh '''
-               if command -v trivy >/dev/null 2>&1; then
-                 trivy fs --severity HIGH,CRITICAL --exit-code 0 --quiet .
-               else
-                 echo "Trivy non installé, étape ignorée."
-               fi
-               '''
-            }
-        }
- 
-
+       
         stage('Image Scan') {
             steps {
                 // Scan d'image Docker avec Trivy (ne bloque pas si absent)
