@@ -24,7 +24,6 @@ pipeline {
 
         stage('SAST') {
             steps {
-                // Analyse statique avec SonarQube Scanner (ne bloque pas si absent)
                 sh '''
                 if command -v sonar-scanner >/dev/null 2>&1; then
                   sonar-scanner -Dsonar.projectKey=Annive_Juliana || true
@@ -37,7 +36,6 @@ pipeline {
 
         stage('Dependency Scan') {
             steps {
-                // Vérifie les dépendances (npm audit si package.json existe)
                 sh '''
                 if [ -f package.json ]; then
                   if command -v npm >/dev/null 2>&1; then
@@ -51,17 +49,30 @@ pipeline {
                 '''
             }
         }
-       
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t annive_juliana:latest .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh '''
+                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    docker tag annive_juliana:latest $USER/annive_juliana:latest
+                    docker push $USER/annive_juliana:latest
+                    '''
+                }
+            }
+        }
+
         stage('Image Scan') {
             steps {
-                // Scan d'image Docker avec Trivy (ne bloque pas si absent)
                 sh '''
                 if command -v trivy >/dev/null 2>&1; then
-                  if docker images | grep -q "annive_juliana"; then
-                    trivy image annive_juliana || true
-                  else
-                    echo "Image Docker 'annive_juliana' introuvable, étape ignorée."
-                  fi
+                  trivy image $USER/annive_juliana:latest || true
                 else
                   echo "Trivy non installé, étape ignorée."
                 fi
@@ -69,10 +80,12 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh 'rm -rf /var/www/html/*'
-                sh 'cp -r * /var/www/html/'
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl rollout status deployment/annive-juliana
+                '''
             }
         }
     }
