@@ -79,14 +79,5 @@ pipeline {
                 '''
             }
         }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                kubectl apply -f deployment.yaml
-                kubectl rollout status deployment/annive-juliana
-                '''
-            }
-        }
     }
 }
