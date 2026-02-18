@@ -60,7 +60,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Credential-docker', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh '''
-                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    echo "$PASS" | DOCKER_CLI_EXPERIMENTAL=enabled docker login -u "$USER" --password-stdin
                     docker tag annive_juliana:latest $USER/annive_juliana:latest
                     docker push $USER/annive_juliana:latest
                     '''
