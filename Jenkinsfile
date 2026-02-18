@@ -60,7 +60,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Credential-docker', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh '''
-                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    echo "$PASS" | DOCKER_CLI_EXPERIMENTAL=enabled docker login -u "$USER" --password-stdin
                     docker tag annive_juliana:latest $USER/annive_juliana:latest
                     docker push $USER/annive_juliana:latest
                     '''
@@ -70,20 +70,22 @@ pipeline {
 
         stage('Image Scan') {
             steps {
-                sh '''
-                if command -v trivy >/dev/null 2>&1; then
-                  trivy image $USER/annive_juliana:latest || true
-                else
-                  echo "Trivy non installé, étape ignorée."
-                fi
-                '''
+                withCredentials([usernamePassword(credentialsId: 'Credential-docker', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh '''
+                    if command -v trivy >/dev/null 2>&1; then
+                      trivy image $USER/annive_juliana:latest || true
+                    else
+                      echo "Trivy non installé, étape ignorée."
+                    fi
+                    '''
+                }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                kubectl apply -f deployment.yaml
+                kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f deployment.yaml
                 kubectl rollout status deployment/annive-juliana
                 '''
             }
