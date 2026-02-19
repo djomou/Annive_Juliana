@@ -81,5 +81,14 @@ pipeline {
                 '''
             }
         }
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker rm -f annive_juliana_container || true
+                docker run -d -p 8081:80 --name annive_juliana_container annive_juliana:latest
+                '''
+            }
+        }
     }
 }
+
